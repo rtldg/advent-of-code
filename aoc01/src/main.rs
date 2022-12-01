@@ -5,9 +5,6 @@ fn main() {
         .map(|y| y.split('\n').map(|z| z.parse::<i64>().unwrap_or(0)).sum())
         .collect();
     x.sort();
-    println!(
-        "a {} - b {}",
-        x[x.len() - 1],
-        x.iter().rev().take(3).sum::<i64>()
-    );
+    x.reverse();
+    println!("a {} - b {}", x[0], x[0] + x[1] + x[2]);
 }
