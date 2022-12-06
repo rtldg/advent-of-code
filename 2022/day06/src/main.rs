@@ -5,15 +5,10 @@ fn hello(count: usize) {
 
     for i in count..s.len() {
         let current = &s[i - count..i];
-        let mut set: HashSet<char> = HashSet::new();
-        for x in current.chars() {
-            set.insert(x);
-        }
-        if set.len() == count {
+        if HashSet::<char>::from_iter(current.chars()).len() == count {
             println!("{}", i);
-            break;
+            return;
         }
-        // println!("{}", &s[i-4..i]);
     }
 }
 
