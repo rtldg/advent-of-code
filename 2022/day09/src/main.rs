@@ -1,8 +1,7 @@
 fn main() {
     let input0 = std::fs::read_to_string("input").unwrap();
-
     const SIZE: usize = 800;
-    let mut visited = vec![vec![0u16; 800]; 800];
+    let mut visited = vec![vec![0u16; SIZE]; SIZE];
     let mut pos = [[(SIZE / 2) as isize; 2]; 10];
     visited[SIZE / 2][SIZE / 2] = 0xFFFF;
 
