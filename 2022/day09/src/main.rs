@@ -6,7 +6,7 @@ fn main() {
     visited[SIZE / 2][SIZE / 2] = 0xFFFF;
 
     for line in input0.trim().split('\n') {
-        let steps = line.split(' ').nth(1).unwrap().parse::<usize>().unwrap();
+        let steps = line[2..].parse::<usize>().unwrap();
         for _ in 0..steps {
             match line.as_bytes()[0] {
                 b'U' => pos[0][1] -= 1,
