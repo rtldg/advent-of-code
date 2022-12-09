@@ -6,14 +6,13 @@ fn main() {
     visited[SIZE / 2][SIZE / 2] = 0xFFFF;
 
     for line in input0.trim().split('\n') {
-        let cmds: Vec<&str> = line.split(' ').collect();
-        let steps = cmds[1].parse::<usize>().unwrap();
+        let steps = line.split(' ').nth(1).unwrap().parse::<usize>().unwrap();
         for _ in 0..steps {
-            match cmds[0] {
-                "U" => pos[0][1] -= 1,
-                "D" => pos[0][1] += 1,
-                "L" => pos[0][0] -= 1,
-                "R" => pos[0][0] += 1,
+            match line.as_bytes()[0] {
+                b'U' => pos[0][1] -= 1,
+                b'D' => pos[0][1] += 1,
+                b'L' => pos[0][0] -= 1,
+                b'R' => pos[0][0] += 1,
                 _ => (),
             }
 
@@ -76,18 +75,14 @@ fn main() {
         }
     }
 
-    let mut answer1 = 0;
-    let mut answer2 = 0;
+    let (mut answer1, mut answer2) = (0, 0);
 
-    for x in 0..SIZE {
-        for y in 0..SIZE {
-            let z = visited[x][y];
-            if (z & (1 << 1)) != 0 {
-                answer1 += 1;
-            }
-            if (z & (1 << 9)) != 0 {
-                answer2 += 1;
-            }
+    for a in visited.iter().flatten() {
+        if (*a & (1 << 1)) != 0 {
+            answer1 += 1;
+        }
+        if (*a & (1 << 9)) != 0 {
+            answer2 += 1;
         }
     }
 
