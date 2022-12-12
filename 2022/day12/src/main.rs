@@ -1,8 +1,11 @@
 #![feature(let_chains)]
+#![allow(non_snake_case)]
+
+use std::collections::*;
 
 use pathfinding::prelude::astar;
 
-fn get_paths(y: usize, x: usize, grid: &Vec<Vec<u8>>) -> Vec<((usize, usize), usize)> {
+fn neighbors(y: usize, x: usize, grid: &Vec<Vec<u8>>) -> Vec<((usize, usize), usize)> {
     let myheight = grid[y][x];
     let mut v = vec![];
 
@@ -67,14 +70,57 @@ fn main() {
     for y in 0..grid.len() {
         for x in 0..grid[0].len() {
             if grid[y][x] == 0 {
+                let heuristic = |(y, x)| goal.0.abs_diff(y) + goal.1.abs_diff(x);
+
+                let mut openSet = HashSet::new();
+                openSet.insert((y, x));
+                let mut cameFrom: HashMap<(usize, usize), (usize, usize)> = HashMap::new();
+                let mut gScore: HashMap<(usize, usize), usize> = HashMap::new();
+                gScore.insert((y, x), 0);
+                let mut fScore: HashMap<(usize, usize), usize> = HashMap::new();
+                fScore.insert((y, x), heuristic((y, x)));
+
+                let mut steps = 99999999;
+
+                while openSet.len() > 0 {
+                    let mut current = openSet
+                        .iter()
+                        .map(|val| (fScore[val], *val))
+                        .min()
+                        .unwrap()
+                        .1;
+                    if current == goal {
+                        let mut total_path = HashSet::new();
+                        while let Some(c) = cameFrom.get(&current) {
+                            current = *c;
+                            total_path.insert(current);
+                        }
+                        steps = total_path.len();
+                        break;
+                    }
+
+                    openSet.remove(&current);
+                    for neighbor in neighbors(current.0, current.1, &grid) {
+                        let tentative_gScore = gScore[&current] + neighbor.1;
+                        if tentative_gScore < *gScore.get(&neighbor.0).unwrap_or(&9999999) {
+                            cameFrom.insert(neighbor.0, current);
+                            gScore.insert(neighbor.0, tentative_gScore);
+                            fScore.insert(neighbor.0, tentative_gScore + heuristic(neighbor.0));
+                            openSet.insert(neighbor.0);
+                        }
+                    }
+                }
+
+                /*
                 let steps = astar(
                     &(y, x),
-                    |&(y, x)| get_paths(y, x, &grid),
+                    |&(y, x)| neighbors(y, x, &grid),
                     |&(y, x)| goal.0.abs_diff(y) + goal.1.abs_diff(x),
                     |&p| p == goal,
                 )
                 .map(|r| r.1)
                 .unwrap_or(9999999);
+                */
                 if (y, x) == start {
                     println!("{}", steps);
                 }
