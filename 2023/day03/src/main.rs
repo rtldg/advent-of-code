@@ -2,16 +2,17 @@
 #![allow(unused_variables)]
 #![allow(unused_mut)]
 
-use std::error::Error;
+use std::{collections::HashSet, error::Error};
 
 fn is_symbol(c: char) -> bool {
     match c {
-        '!' | '@' | '#' | '$' | '%' | '^' | '&' | '*' | '\\' | '/' | '+' | '-' | '='  => true,
+        '!' | '@' | '#' | '$' | '%' | '^' | '&' | '*' | '\\' | '/' | '+' | '-' | '=' => true,
         _ => false,
     }
 }
 
-fn is_adjacent(map: &Vec<Vec<u8>>, x: usize, y: usize) -> bool {
+fn adjacent_symbols(map: &Vec<Vec<u8>>, x: usize, y: usize) -> Vec<(usize, usize)> {
+    let mut symbols = vec![];
     for thing in [
         (0, 1),
         (1, 1),
@@ -22,16 +23,20 @@ fn is_adjacent(map: &Vec<Vec<u8>>, x: usize, y: usize) -> bool {
         (-1, 0),
         (-1, 1),
     ] {
-        if is_symbol(map[(y as isize + thing.1) as usize][(x as isize + thing.0) as usize] as char) {
-            return true;
+        let (a, b) = (
+            (y as isize + thing.1) as usize,
+            (x as isize + thing.0) as usize,
+        );
+        if is_symbol(map[a][b] as char) {
+            symbols.push((a, b));
         }
     }
-    false
+    symbols
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
     let input_file = "test_input";
-    // let input_file = "input";
+    let input_file = "input";
     let input0 = std::fs::read_to_string(input_file)?;
 
     let mut input0: Vec<Vec<u8>> = std::fs::read_to_string(input_file)?
@@ -51,42 +56,53 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
     let width = width + 2;
 
+    let mut symbol_thing = vec![vec![vec![]; width]; height];
+
     let mut part_number_sum = 0;
 
     for y in 0..height {
         let mut numbuf = String::new();
-        let mut adjacent = false;
+        let mut adjacent = vec![];
 
         for x in 0..width {
             let c = input0[y][x] as char;
             if c.is_ascii_digit() {
-                adjacent = adjacent || is_adjacent(&input0, x, y);
+                if adjacent.len() == 0 {
+                    adjacent.append(&mut adjacent_symbols(&input0, x, y))
+                }
                 numbuf.push(c);
             } else {
-                if adjacent {
-                    // input0[y][x - numbuf.len()-1..x-1].fill(0);
-                    part_number_sum += numbuf.parse::<usize>().unwrap();
+                if adjacent.len() > 0 {
+                    let part_number = numbuf.parse::<usize>().unwrap();
+                    let unique = adjacent
+                        .clone()
+                        .into_iter()
+                        .collect::<HashSet<(usize, usize)>>();
+                    for u in unique {
+                        // if input0[u.0][u.1] == b'*' { println!("{:?}", u); }
+                        symbol_thing[u.0][u.1].push(part_number);
+                    }
+                    part_number_sum += part_number;
                     println!("{}", numbuf);
-                    adjacent = false;
+                    adjacent.clear();
                 }
                 numbuf.clear();
             }
         }
-        /*
-        if adjacent {
-            input0[y][width - numbuf.len()..].fill(0);
-            part_number_sum += numbuf.parse::<usize>().unwrap();
-            println!("{}", numbuf);
-        }
-        */
     }
-
 
     let mut gear_ratio_sum = 0;
 
+    for y in 0..height {
+        for x in 0..width {
+            if input0[y][x] == b'*' && symbol_thing[y][x].len() == 2 {
+                let multiple = symbol_thing[y][x][0] * symbol_thing[y][x][1];
+                gear_ratio_sum += multiple;
+                println!("{} {} {}", x, y, multiple);
+            }
+        }
+    }
 
-
-
-    println!("\n{}\n{}", part_number_sum, 0);
+    println!("\n{}\n{}", part_number_sum, gear_ratio_sum);
     Ok(())
 }
