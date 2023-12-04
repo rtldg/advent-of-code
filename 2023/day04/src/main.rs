@@ -2,7 +2,7 @@
 #![allow(unused_variables)]
 #![allow(unused_mut)]
 
-use std::{error::Error, collections::HashSet};
+use std::{collections::HashSet, error::Error};
 
 use itertools::Itertools;
 
@@ -19,21 +19,35 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let mut total_point_worth = 0;
 
-    for (lineid, line) in input0.iter().enumerate() {
-        let (winning, mine) = line.split(':').nth(1).unwrap().split('|').collect_tuple().unwrap();
+    let mut card_counts = vec![1; input0.len()];
+
+    for (cardid, line) in input0.iter().enumerate() {
+        let (winning, mine) = line
+            .split(':')
+            .nth(1)
+            .unwrap()
+            .split('|')
+            .collect_tuple()
+            .unwrap();
         let winning: HashSet<&str> = HashSet::from_iter(winning.split_ascii_whitespace());
         let mine: HashSet<&str> = HashSet::from_iter(mine.split_ascii_whitespace());
-        /*let mut winning_hashset = HashSet::new();
-        let _ = winning.split_ascii_whitespace().map(|n| winning_hashset.insert(n.parse::<usize>())).collect();
-        for _ =*/
+
         let matches = winning.intersection(&mine).count();
-        println!("{}", matches);
+        // println!("{}", matches);
 
         if matches > 0 {
-            total_point_worth += 1 << (matches-1);
+            total_point_worth += 1 << (matches - 1);
+
+            for i in 1..matches + 1 {
+                card_counts[cardid + i] += card_counts[cardid];
+            }
         }
     }
 
-    println!("\n{}\n{}", total_point_worth, 0);
+    println!(
+        "\n{}\n{}",
+        total_point_worth,
+        card_counts.iter().sum::<usize>()
+    );
     Ok(())
 }
