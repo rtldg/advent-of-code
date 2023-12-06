@@ -40,5 +40,30 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
 
     println!("\n\n{}", win_counts.iter().product::<usize>());
+
+    // PART 2
+
+    let time_limit = input0[0]
+        .split_ascii_whitespace()
+        .skip(1)
+        .join("")
+        .parse::<usize>()
+        .unwrap();
+    let target_distance = input0[1]
+        .split_ascii_whitespace()
+        .skip(1)
+        .join("")
+        .parse::<usize>()
+        .unwrap();
+
+    let mut win_count = 0;
+    for i in 1..time_limit {
+        let x = (time_limit - i) * i;
+        if x > target_distance {
+            win_count += 1;
+        }
+    }
+
+    println!("\n\n{}", win_count);
     Ok(())
 }
