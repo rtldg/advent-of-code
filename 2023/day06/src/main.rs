@@ -9,19 +9,36 @@ use itertools::Itertools;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let input_file = "test_input";
-    //let input_file = "input";
-    let input0 = std::fs::read_to_string(input_file)?;
+    let input_file = "input";
 
     let mut input0: Vec<String> = std::fs::read_to_string(input_file)?
         .trim()
         .split('\n')
         .map(str::to_string)
         .collect();
+    let times = input0[0]
+        .split_ascii_whitespace()
+        .skip(1)
+        .map(|s| s.parse::<usize>().unwrap())
+        .collect_vec();
+    let distances = input0[1]
+        .split_ascii_whitespace()
+        .skip(1)
+        .map(|s| s.parse::<usize>().unwrap())
+        .collect_vec();
 
-    for (lineid, line) in input0.iter().enumerate() {
-
+    let mut win_counts = vec![0; times.len()];
+    for (time_limit, target_distance, win_count) in
+        itertools::izip!(times, distances, win_counts.iter_mut())
+    {
+        for i in 1..time_limit {
+            let x = (time_limit - i) * i;
+            if x > target_distance {
+                *win_count += 1;
+            }
+        }
     }
 
-    println!("{:?}\n\n{:?}\n\n", 0, 0);
+    println!("\n\n{}", win_counts.iter().product::<usize>());
     Ok(())
 }
