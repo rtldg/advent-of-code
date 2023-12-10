@@ -12,8 +12,8 @@ use itertools::Itertools;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let input_file = "test_input";
-    // let input_file = "test_input_p2";
-    let input_file = "input";
+    let input_file = "test_input_p2";
+    // let input_file = "input";
     let mut input0 = std::fs::read_to_string(input_file)?;
     let mut input0: Vec<String> = std::fs::read_to_string(input_file)?
         .trim()
@@ -39,38 +39,40 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
     };
 
-    let get_connections = |(current_char, current_pos): (char, (usize, usize))| -> Vec<(char, (usize, usize))> {
-        let mut connections = vec![];
+    let get_connections =
+        |(current_char, current_pos): (char, (usize, usize))| -> Vec<(char, (usize, usize))> {
+            let mut connections = vec![];
 
-        let connectors = [
-            ('|', (0, -1), ['|', 'F', '7']),
-            ('|', (0, 1), ['|', 'L', 'J']),
-            ('-', (-1, 0), ['-', 'F', 'L']),
-            ('-', (1, 0), ['-', 'J', '7']),
-            ('L', (0, -1), ['|', 'F', '7']),
-            ('L', (1, 0), ['-', 'J', '7']),
-            ('J', (0, -1), ['|', 'F', '7']),
-            ('J', (-1, 0), ['-', 'F', 'L']),
-            ('7', (0, 1), ['|', 'L', 'J']),
-            ('7', (-1, 0), ['-', 'F', 'L']),
-            ('F', (0, 1), ['|', 'J', 'L']),
-            ('F', (1, 0), ['-', 'J', '7']),
-
-            ('S', (0, -1), ['|', '7', 'F']),
-            ('S', (0, 1), ['|', 'J', 'L']),
-            ('S', (-1, 0), ['-', 'F', 'L']),
-            ('S', (1, 0), ['-', 'J', '7']),
-        ];
-        for connector in connectors {
-            if current_char == connector.0 {
-                if let Some(v) = get_at(current_pos, connector.1) && connector.2.contains(&v.0) {
-                    connections.push(v);
+            let connectors = [
+                ('|', (0, -1), ['|', 'F', '7']),
+                ('|', (0, 1), ['|', 'L', 'J']),
+                ('-', (-1, 0), ['-', 'F', 'L']),
+                ('-', (1, 0), ['-', 'J', '7']),
+                ('L', (0, -1), ['|', 'F', '7']),
+                ('L', (1, 0), ['-', 'J', '7']),
+                ('J', (0, -1), ['|', 'F', '7']),
+                ('J', (-1, 0), ['-', 'F', 'L']),
+                ('7', (0, 1), ['|', 'L', 'J']),
+                ('7', (-1, 0), ['-', 'F', 'L']),
+                ('F', (0, 1), ['|', 'J', 'L']),
+                ('F', (1, 0), ['-', 'J', '7']),
+                ('S', (0, -1), ['|', '7', 'F']),
+                ('S', (0, 1), ['|', 'J', 'L']),
+                ('S', (-1, 0), ['-', 'F', 'L']),
+                ('S', (1, 0), ['-', 'J', '7']),
+            ];
+            for connector in connectors {
+                if current_char == connector.0 {
+                    if let Some(v) = get_at(current_pos, connector.1)
+                        && connector.2.contains(&v.0)
+                    {
+                        connections.push(v);
+                    }
                 }
             }
-        }
 
-        connections
-    };
+            connections
+        };
 
     let mut farthest = 99999999;
     let starting_connections = get_connections(('S', start));
