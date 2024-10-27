@@ -21,11 +21,19 @@ fn main() -> Result<(), Box<dyn Error>> {
         .map(str::to_string)
         .collect();
 
+    let mut arrangements = 0;
     for (lineid, line) in input0.iter().enumerate() {
+        let (condition, contiguous_damaged) = line.split_ascii_whitespace().collect_tuple().unwrap();
+        let contiguous_damaged = contiguous_damaged
+            .split(',')
+            .map(|s| s.parse::<usize>().unwrap())
+            .collect_vec();
+        let relevant = condition.split('.').filter(|s| s.len() > 0).collect_vec();
+        println!("{:?}", relevant);
 
     }
 
-    println!("\n\n{:?}\n\n", 0);
+    println!("\n\n{:?}\n\n", arrangements);
 
     Ok(())
 }

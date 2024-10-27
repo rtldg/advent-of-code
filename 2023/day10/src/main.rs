@@ -103,9 +103,18 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
 
         farthest = steps / 2 + 1;
+        break; // idk lol. i just left this in a loop and it doesn't matter...
     }
 
     println!("\n\n{:?}\n\n", farthest);
+
+    let mut input0 = std::fs::read_to_string(input_file)?
+        .trim()
+        .split('\n')
+        .map(|s| s.as_bytes().to_vec())
+        .collect_vec();
+
+
 
     Ok(())
 }
