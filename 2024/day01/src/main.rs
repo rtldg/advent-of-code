@@ -45,5 +45,21 @@ fn main() -> anyhow::Result<()> {
 
 	println!("\n\n{}\n\n", answer);
 
+	let mut counts = HashMap::<i32, i32>::new();
+
+	for item in &rightlist {
+		*counts.entry(*item).or_default() += 1;
+	}
+
+	let similarity_score: Vec<i32> = leftlist
+		.iter()
+		.zip(rightlist.iter())
+		.map(|(l, r)| *l * counts.get(l).unwrap_or(&0))
+		.collect();
+
+	let answerp2: i32 = similarity_score.iter().sum();
+
+	println!("\n\n{}\n\n", answerp2);
+
 	Ok(())
 }
