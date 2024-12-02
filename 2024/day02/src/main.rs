@@ -23,40 +23,45 @@ fn main() -> anyhow::Result<()> {
 		.collect();
 
 	let mut safe_reports = 0;
+	let mut safe_and_dampened_reports = 0;
 
 	'lineloop: for (lineid, line) in input0.iter().enumerate() {
-		// Alternatively we could check if the levels == sorted(levels) || levels == reverse(sorted(levels))
+		let original_levels: Vec<i32> = line.split_ascii_whitespace().map(|s| s.parse().unwrap()).collect();
 
-		let mut diff_sign: i32 = 0;
-		let mut prev_num: i32 = 0;
-		for thing in line.split_ascii_whitespace() {
-			let num: i32 = thing.parse()?;
-			if prev_num != 0 {
-				let abs_diff = prev_num.abs_diff(num);
-				if abs_diff < 1 || abs_diff > 3 {
-					println!("skipping line {} - abs_diff = {abs_diff}", lineid + 1);
-					continue 'lineloop;
-				}
+		// Check if levels == sorted(levels).
+		// Check if levels == rev(sorted(levels)).
+		// Check if abs_diff is correct.
 
-				let current_diff_sign = (prev_num - num).signum();
-
-				if diff_sign == 0 {
-					diff_sign = current_diff_sign;
-				} else if diff_sign != current_diff_sign {
-					println!(
-						"skipping line {} - diff_sign = {diff_sign} & current_diff_sign = {current_diff_sign}",
-						lineid + 1
-					);
-					continue 'lineloop;
-				}
+		'levelloop: for remove_idx in (0..=original_levels.len()).rev() {
+			let mut levels = original_levels.clone();
+			if remove_idx < original_levels.len() {
+				levels.remove(remove_idx);
 			}
 
-			prev_num = num;
+			let mut sorted = levels.clone();
+			sorted.sort();
+			let mut rev_sorted = sorted.clone();
+			rev_sorted.reverse();
+
+			if levels == sorted || levels == rev_sorted {
+				for win in levels.windows(2) {
+					let abs_diff = win[0].abs_diff(win[1]);
+					if abs_diff < 1 || abs_diff > 3 {
+						continue 'levelloop;
+					}
+				}
+
+				safe_and_dampened_reports += 1;
+				if remove_idx == original_levels.len() {
+					safe_reports += 1;
+				}
+
+				continue 'lineloop;
+			}
 		}
-		safe_reports += 1;
 	}
 
-	println!("\n\n{}\n\n", safe_reports);
+	println!("\n\n{}\n\n{}\n\n", safe_reports, safe_and_dampened_reports);
 
 	Ok(())
 }
