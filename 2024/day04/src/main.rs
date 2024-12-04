@@ -71,6 +71,21 @@ fn main() -> anyhow::Result<()> {
 		}
 	}
 
+	for y in 0..h - 2 {
+		for x in 0..w - 2 {
+			let x_mas = [
+				grid[y + 0][x + 0],
+				grid[y + 0][x + 2],
+				grid[y + 1][x + 1],
+				grid[y + 2][x + 0],
+				grid[y + 2][x + 2],
+			];
+			if x_mas.eq(b"MSAMS") || x_mas.eq(b"MMASS") || x_mas.eq(b"SMASM") || x_mas.eq(b"SSAMM") {
+				answerp2 += 1;
+			}
+		}
+	}
+
 	println!("\n\n{}\n\n{}\n\n", answerp1, answerp2);
 
 	Ok(())
