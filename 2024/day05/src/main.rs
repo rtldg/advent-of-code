@@ -60,18 +60,15 @@ fn main() -> anyhow::Result<()> {
 		let mut uidx = 0;
 		'restart_page: while uidx < update.len() {
 			let page = update[uidx];
-			let mut ridx = 0;
-			while ridx < rules.len() {
-				let (l, r) = rules[ridx];
-				if page == l {
-					if let Some((pos, _)) = (&update[..uidx]).iter().find_position(|v| **v == r) {
+			for (l, r) in &rules {
+				if page == *l {
+					if let Some((pos, _)) = (&update[..uidx]).iter().find_position(|v| **v == *r) {
 						println!("attempting to swap with ({l}|{r}) {update:?}?");
 						update.swap(uidx, pos);
 						uidx = 0;
 						continue 'restart_page;
 					}
 				}
-				ridx += 1;
 			}
 			uidx += 1;
 		}
