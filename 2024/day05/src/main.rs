@@ -30,12 +30,13 @@ fn main() -> anyhow::Result<()> {
 		rules.push((l, r));
 	}
 
-	let page_update_set: Vec<Vec<i32>> = page_update_set
+	let mut page_update_set: Vec<Vec<i32>> = page_update_set
 		.trim()
 		.split('\n')
 		.map(|line| line.split(',').map(|s| s.parse::<i32>().unwrap()).collect())
 		.collect();
 
+	let mut bad_updates = vec![];
 	'next_update: for update in page_update_set.iter() {
 		for i in 0..update.len() {
 			let page = update[i];
@@ -43,6 +44,7 @@ fn main() -> anyhow::Result<()> {
 				if page == *l {
 					if let Some(pos) = (&update[..i]).iter().find_position(|v| **v == *r) {
 						// not good
+						bad_updates.push(update.clone());
 						continue 'next_update;
 					}
 				}
@@ -50,6 +52,31 @@ fn main() -> anyhow::Result<()> {
 		}
 		println!("good with {update:?}");
 		answerp1 += update[update.len() / 2];
+	}
+
+	println!("");
+
+	for update in bad_updates.iter_mut() {
+		let mut uidx = 0;
+		'restart_page: while uidx < update.len() {
+			let page = update[uidx];
+			let mut ridx = 0;
+			while ridx < rules.len() {
+				let (l, r) = rules[ridx];
+				if page == l {
+					if let Some((pos, _)) = (&update[..uidx]).iter().find_position(|v| **v == r) {
+						println!("attempting to swap with ({l}|{r}) {update:?}?");
+						update.swap(uidx, pos);
+						uidx = 0;
+						continue 'restart_page;
+					}
+				}
+				ridx += 1;
+			}
+			uidx += 1;
+		}
+		println!("bad with {update:?}");
+		answerp2 += update[update.len() / 2];
 	}
 
 	println!("\n\n{}\n\n{}\n\n", answerp1, answerp2);
