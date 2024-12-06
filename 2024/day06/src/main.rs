@@ -6,17 +6,19 @@
 
 use core::cmp::Ordering;
 use core::cmp::{max, min};
+use std::sync::atomic::AtomicU64;
 use std::{collections::HashMap, collections::HashSet, error::Error};
 
 use anyhow::Context;
 use itertools::{Itertools, rev, sorted};
+use rayon::prelude::*;
 
 fn main() -> anyhow::Result<()> {
 	let input_file = "test_input";
 	let input_file = "input";
 
 	let mut answerp1 = 0;
-	let mut answerp2 = 0;
+	let mut answerp2 = AtomicU64::new(0);
 
 	let mut grid: Vec<Vec<u8>> = std::fs::read_to_string(input_file)
 		.context("failed to read input_file to string 2")?
@@ -72,7 +74,8 @@ fn main() -> anyhow::Result<()> {
 
 	answerp1 = visited.len();
 
-	for obs_y in 0..h {
+	// for obs_y in 0..h {
+	(0..h).into_par_iter().for_each(|obs_y| {
 		for obs_x in 0..w {
 			if guard_init_x == obs_x && guard_init_y == obs_y {
 				continue;
@@ -86,7 +89,7 @@ fn main() -> anyhow::Result<()> {
 				if let Some(_) = visited_with_dir.insert((guard_y, guard_x, dir), true) {
 					// we looped!
 					// println!("placed with y={obs_y} x={obs_x} dir={dir}");
-					answerp2 += 1;
+					answerp2.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
 					break;
 				}
 
@@ -105,9 +108,9 @@ fn main() -> anyhow::Result<()> {
 				}
 			}
 		}
-	}
+	});
 
-	println!("\n\n{}\n\n{}\n\n", answerp1, answerp2);
+	println!("\n\n{}\n\n{}\n\n", answerp1, answerp2.load(std::sync::atomic::Ordering::SeqCst));
 
 	Ok(())
 }
