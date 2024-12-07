@@ -15,7 +15,7 @@ use rayon::prelude::*;
 
 fn main() -> anyhow::Result<()> {
 	let input_file = "test_input";
-	// let input_file = "input";
+	let input_file = "input";
 
 	let mut answerp1 = 0;
 	let mut answerp2 = 0;
@@ -26,6 +26,32 @@ fn main() -> anyhow::Result<()> {
 		.lines()
 		.map(str::to_string)
 		.collect();
+
+	for line in &lines {
+		let (target, args) = line.split(':').collect_tuple().unwrap();
+		let target: i64 = target.parse()?;
+		let args: Vec<i64> = args
+			.trim()
+			.split_ascii_whitespace()
+			.map(|s| s.parse().unwrap())
+			.collect();
+		println!("{target}: {args:?}");
+		for perm in itertools::repeat_n(0..=1, args.len() - 1).multi_cartesian_product() {
+			let mut result = args[0];
+			for i in 1..args.len() {
+				if perm[i - 1] == 0 {
+					result += args[i];
+				} else {
+					result *= args[i];
+				}
+			}
+			if result == target {
+				println!("  found");
+				answerp1 += result;
+				break;
+			}
+		}
+	}
 
 	println!("\n\n{}\n\n{}\n\n", answerp1, answerp2);
 
