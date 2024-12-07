@@ -36,6 +36,7 @@ fn main() -> anyhow::Result<()> {
 			.map(|s| s.parse().unwrap())
 			.collect();
 		println!("{target}: {args:?}");
+		let last_answerp1 = answerp1;
 		for perm in itertools::repeat_n(0..=1, args.len() - 1).multi_cartesian_product() {
 			let mut result = args[0];
 			for i in 1..args.len() {
@@ -51,7 +52,27 @@ fn main() -> anyhow::Result<()> {
 				break;
 			}
 		}
+		if answerp1 == last_answerp1 {
+			for perm in itertools::repeat_n(0..=2, args.len() - 1).multi_cartesian_product() {
+				let mut result = args[0];
+				for i in 1..args.len() {
+					match perm[i - 1] {
+						0 => result += args[i],
+						1 => result *= args[i],
+						2 => result = (result.to_string() + &args[i].to_string()).parse()?,
+						_ => (),
+					};
+				}
+				if result == target {
+					println!("  found");
+					answerp2 += result;
+					break;
+				}
+			}
+		}
 	}
+
+	answerp2 += answerp1;
 
 	println!("\n\n{}\n\n{}\n\n", answerp1, answerp2);
 
