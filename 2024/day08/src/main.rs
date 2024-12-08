@@ -6,6 +6,7 @@
 
 use core::cmp::Ordering;
 use core::cmp::{max, min};
+use core::str;
 use std::sync::atomic::AtomicU64;
 use std::{collections::HashMap, collections::HashSet, error::Error};
 
@@ -33,7 +34,7 @@ fn main() -> anyhow::Result<()> {
 
 	let mut real_antinodes = HashMap::<(usize, usize, u8), bool>::new();
 
-	let mut do_antinodes = |anttype, starty, startx| {
+	let mut do_antinodes = |antinodes: &mut Vec<Vec<u8>>, anttype, starty, startx, p2| {
 		for y in 0..h {
 			for x in 0..w {
 				if y == starty && x == startx {
@@ -45,21 +46,35 @@ fn main() -> anyhow::Result<()> {
 					continue;
 				}
 
-				let antiy = if starty > y {
-					y - (starty - y)
+				let diffy = if starty > y {
+					-((starty - y) as isize) as usize
 				} else {
-					y + (y - starty)
+					y - starty
 				};
-				let antix = if startx > x {
-					x - (startx - x)
+				let diffx = if startx > x {
+					-((startx - x) as isize) as usize
 				} else {
-					x + (x - startx)
+					x - startx
 				};
 
-				if (0..h).contains(&antiy) && (0..w).contains(&antix) {
-					println!("plopping '{}' at y={} x={}", anttype as char, antiy, antix);
-					antinodes[antiy][antix] = anttype;
-					let _ = real_antinodes.insert((antiy, antix, anttype), true);
+				let mut antiy = y + diffy;
+				let mut antix = x + diffx;
+
+				let mut first = true;
+				while p2 || first {
+					first = false;
+					if (0..h).contains(&antiy) && (0..w).contains(&antix) {
+						// println!("plopping '{}' at y={} x={}", anttype as char, antiy, antix);
+						antinodes[antiy][antix] = anttype;
+						// let _ = real_antinodes.insert((antiy, antix, anttype), true);
+						if p2 {
+							antinodes[starty][startx] = anttype;
+							antiy += diffy;
+							antix += diffx;
+						}
+					} else {
+						break;
+					}
 				}
 			}
 		}
@@ -69,19 +84,27 @@ fn main() -> anyhow::Result<()> {
 		for x in 0..w {
 			let antenna = grid[y][x];
 			if antenna.is_ascii_alphanumeric() {
-				do_antinodes(antenna, y, x);
+				do_antinodes(&mut antinodes, antenna, y, x, false);
 			}
 		}
 	}
 
 	let answerp1: usize = antinodes.iter().map(|r| r.iter().filter(|v| **v != b'.').count()).sum();
 
-	println!("");
 	for y in 0..h {
 		for x in 0..w {
-			print!("{}", antinodes[y][x] as char);
+			let antenna = grid[y][x];
+			if antenna.is_ascii_alphanumeric() {
+				do_antinodes(&mut antinodes, antenna, y, x, true);
+			}
 		}
-		println!("");
+	}
+
+	let answerp2: usize = antinodes.iter().map(|r| r.iter().filter(|v| **v != b'.').count()).sum();
+
+	println!("");
+	for row in &antinodes {
+		println!("{}", str::from_utf8(row)?);
 	}
 
 	// let answerp1 = real_antinodes.len();
