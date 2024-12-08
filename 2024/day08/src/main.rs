@@ -18,8 +18,6 @@ fn main() -> anyhow::Result<()> {
 	let input_file = "test_input";
 	let input_file = "input";
 
-	let mut answerp2 = 0;
-
 	let mut grid: Vec<Vec<u8>> = std::fs::read_to_string(input_file)
 		.context("failed to read input_file to string 2")?
 		.trim()
@@ -31,8 +29,6 @@ fn main() -> anyhow::Result<()> {
 	let w = grid[0].len();
 
 	let mut antinodes = vec![vec![b'.'; w]; h];
-
-	let mut real_antinodes = HashMap::<(usize, usize, u8), bool>::new();
 
 	let mut do_antinodes = |antinodes: &mut Vec<Vec<u8>>, anttype, starty, startx, p2| {
 		for y in 0..h {
@@ -60,17 +56,17 @@ fn main() -> anyhow::Result<()> {
 				let mut antiy = y + diffy;
 				let mut antix = x + diffx;
 
-				let mut first = true;
-				while p2 || first {
-					first = false;
+				loop {
 					if (0..h).contains(&antiy) && (0..w).contains(&antix) {
-						// println!("plopping '{}' at y={} x={}", anttype as char, antiy, antix);
+						println!("plopping '{}' at y={} x={}", anttype as char, antiy, antix);
 						antinodes[antiy][antix] = anttype;
-						// let _ = real_antinodes.insert((antiy, antix, anttype), true);
 						if p2 {
 							antinodes[starty][startx] = anttype;
+							antinodes[y][x] = anttype;
 							antiy += diffy;
 							antix += diffx;
+						} else {
+							break;
 						}
 					} else {
 						break;
@@ -106,8 +102,6 @@ fn main() -> anyhow::Result<()> {
 	for row in &antinodes {
 		println!("{}", str::from_utf8(row)?);
 	}
-
-	// let answerp1 = real_antinodes.len();
 
 	println!("\n\n{}\n\n{}\n\n", answerp1, answerp2);
 
