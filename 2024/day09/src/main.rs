@@ -25,12 +25,14 @@ fn main() -> anyhow::Result<()> {
 	let mut diskmap = std::fs::read_to_string(input_file).context("failed to read input_file to string 2")?;
 
 	let mut disk: Vec<u16> = vec![];
+	let mut fileinfo = HashMap::<usize, (usize, usize)>::new();
 
 	for (charidx, c) in diskmap.chars().enumerate() {
-		let count = c.to_digit(10).unwrap();
+		let count = c.to_digit(10).unwrap() as usize;
 		if (charidx & 1) == 0 {
 			// number of blocks in file
-			let fileid = charidx / 2;
+			let fileid: usize = charidx / 2;
+			let _ = fileinfo.insert(fileid, (disk.len(), count));
 			for i in 0..count {
 				disk.push(fileid as u16);
 			}
@@ -43,6 +45,8 @@ fn main() -> anyhow::Result<()> {
 			}
 		}
 	}
+
+	let mut diskp2 = disk.clone();
 
 	// println!("{:?}", disk);
 
@@ -67,6 +71,34 @@ fn main() -> anyhow::Result<()> {
 		}
 
 		answerp1 += i * (*v as usize);
+	}
+
+	for fileid in (0..diskmap.len() / 2 + 1).rev() {
+		let &(filepos, fileblocks) = fileinfo.get(&fileid).unwrap();
+		println!("{fileid}: @{filepos} x{fileblocks}");
+		let mut freecount = 0;
+		for diskpos in 0..filepos {
+			if diskp2[diskpos] == u16::MAX {
+				freecount += 1;
+			} else {
+				freecount = 0;
+			}
+			if freecount >= fileblocks {
+				for block in 0..fileblocks {
+					diskp2[diskpos - block] = fileid as u16;
+					diskp2[filepos + block] = u16::MAX;
+				}
+				break;
+			}
+		}
+	}
+
+	println!("{diskp2:?}");
+
+	for (i, v) in diskp2.iter().enumerate() {
+		if *v != u16::MAX {
+			answerp2 += i * (*v as usize);
+		}
 	}
 
 	println!("\n\n{}\n\n{}\n\n", answerp1, answerp2);
