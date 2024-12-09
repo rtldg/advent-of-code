@@ -56,13 +56,16 @@ fn main() -> anyhow::Result<()> {
 				let mut antiy = y + diffy;
 				let mut antix = x + diffx;
 
+				if p2 {
+					antinodes[starty][startx] = anttype;
+					antinodes[y][x] = anttype;
+				}
+
 				loop {
 					if (0..h).contains(&antiy) && (0..w).contains(&antix) {
-						println!("plopping '{}' at y={} x={}", anttype as char, antiy, antix);
+						// println!("plopping '{}' at y={} x={}", anttype as char, antiy, antix);
 						antinodes[antiy][antix] = anttype;
 						if p2 {
-							antinodes[starty][startx] = anttype;
-							antinodes[y][x] = anttype;
 							antiy += diffy;
 							antix += diffx;
 						} else {
