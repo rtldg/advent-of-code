@@ -15,7 +15,8 @@ use rayon::prelude::*;
 
 fn main() -> anyhow::Result<()> {
 	let input_file = "test_input";
-	// let input_file = "input";
+	let input_file = "input";
+	// regular input is NOT 1460306
 
 	let mut grid: Vec<Vec<u8>> = std::fs::read_to_string(input_file)
 		.context("failed to read input_file to string 2")?
@@ -42,7 +43,7 @@ fn main() -> anyhow::Result<()> {
 	let mut plants = HashMap::<char, Vec<(usize, usize)>>::new();
 
 	let mut visited = vec![vec![false; w]; h];
-	let mut fences = vec![vec![false; w * 3]; h * 3];
+	let mut fences = vec![vec![false; w * 2]; h * 2];
 
 	fn traverse(
 		grid: &Vec<Vec<u8>>,
@@ -61,29 +62,29 @@ fn main() -> anyhow::Result<()> {
 
 		// up
 		if grid[y - 1][x] != target_plant {
-			fences[y * 3 + 0][x * 3 + 0] = true;
-			fences[y * 3 + 0][x * 3 + 2] = true;
+			fences[y * 2 + 0][x * 2 + 0] = true;
+			fences[y * 2 + 0][x * 2 + 2] = true;
 		} else {
 			area += traverse(grid, visited, fences, target_plant, y - 1, x);
 		}
 		// down
 		if grid[y + 1][x] != target_plant {
-			fences[y * 3 + 2][x * 3 + 0] = true;
-			fences[y * 3 + 2][x * 3 + 2] = true;
+			fences[y * 2 + 2][x * 2 + 0] = true;
+			fences[y * 2 + 2][x * 2 + 2] = true;
 		} else {
 			area += traverse(grid, visited, fences, target_plant, y + 1, x);
 		}
 		// left
 		if grid[y][x - 1] != target_plant {
-			fences[y * 3 + 0][x * 3 + 0] = true;
-			fences[y * 3 + 2][x * 3 + 0] = true;
+			fences[y * 2 + 0][x * 2 + 0] = true;
+			fences[y * 2 + 2][x * 2 + 0] = true;
 		} else {
 			area += traverse(grid, visited, fences, target_plant, y, x - 1);
 		}
 		// right
 		if grid[y][x + 1] != target_plant {
-			fences[y * 3 + 0][x * 3 + 2] = true;
-			fences[y * 3 + 2][x * 3 + 2] = true;
+			fences[y * 2 + 0][x * 2 + 2] = true;
+			fences[y * 2 + 2][x * 2 + 2] = true;
 		} else {
 			area += traverse(grid, visited, fences, target_plant, y, x + 1);
 		}
@@ -100,6 +101,8 @@ fn main() -> anyhow::Result<()> {
 			let target_plant = grid[y][x];
 
 			let area = traverse(&grid, &mut visited, &mut fences, grid[y][x], y, x);
+
+			/*
 			for row in 0..fences.len() {
 				for column in 0..fences[0].len() {
 					if fences[row][column] {
@@ -111,6 +114,7 @@ fn main() -> anyhow::Result<()> {
 				print!("\n");
 			}
 			print!("\n");
+			*/
 
 			let fence_count = fences.iter().map(|r| r.iter().filter(|c| **c).count()).sum();
 			plants
