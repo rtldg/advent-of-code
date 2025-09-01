@@ -20,9 +20,6 @@ fn main() -> anyhow::Result<()> {
 
 	let mut input: String = std::fs::read_to_string(input_file).context("failed to read input_file to string 2")?;
 
-	let mut answerp1 = 0;
-	let mut answerp2 = 0;
-
 	let re = Regex::new(r"Button A: X\+(\d+), Y\+(\d+)\nButton B: X\+(\d+), Y\+(\d+)\nPrize: X=(\d+), Y=(\d+)")?;
 
 	let mut answerp1 = 0;
@@ -46,6 +43,41 @@ fn main() -> anyhow::Result<()> {
 		}
 		if lowest != core::usize::MAX {
 			answerp1 += lowest;
+		}
+	}
+
+	// part 2 moment:
+	// >Unfortunately, it will take many more than 100 presses to do so.
+	// it's over for bruteforcers...
+
+	let mut answerp2 = 0;
+	for caps in re.captures_iter(&input) {
+		let (_, [ax, ay, bx, by, px, py]) = caps.extract();
+		let (ax, ay, bx, by, px, py): (usize, usize, usize, usize, usize, usize) = (
+			ax.parse()?,
+			ay.parse()?,
+			bx.parse()?,
+			by.parse()?,
+			px.parse()?,
+			py.parse()?,
+		);
+		let px = px + 10000000000000;
+		let py = py + 10000000000000;
+		let mut lowest = core::usize::MAX;
+		for a in 0..=100 {
+			for b in 0..=100 {
+				if a == 0 && b == 0 {
+					continue;
+				}
+				let xdist = a * ax + b * bx;
+				let ydist = a * ay + b * by;
+				// println!("{px} / {xdist}, {py} / {ydist}");
+				let divisor = max(px / xdist, py / ydist);
+				lowest = lowest.min(a * divisor * 3 + b * divisor);
+			}
+		}
+		if lowest != core::usize::MAX {
+			answerp2 += lowest;
 		}
 	}
 
