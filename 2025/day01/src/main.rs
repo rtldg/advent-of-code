@@ -45,7 +45,31 @@ fn swag(filename: &str) -> anyhow::Result<()> {
 		}
 	}
 
-	println!("\n\n====== {filename}:\n{answerp1}\n\n{answerp2}\n\n");
+	let mut dial = 50;
+
+	for (lineno, line) in input0.iter().enumerate() {
+		let rotations = i32::from_str_radix(&line[1..], 10)?;
+
+		if line.starts_with('L') {
+			for i in 0..rotations {
+				dial -= 1;
+				dial %= 100;
+				if dial == 0 {
+					answerp2 += 1;
+				}
+			}
+		} else {
+			for i in 0..rotations {
+				dial += 1;
+				dial %= 100;
+				if dial == 0 {
+					answerp2 += 1;
+				}
+			}
+		}
+	}
+
+	println!("\n\n====== {filename}:\n{answerp1}\n{answerp2}\n");
 
 	Ok(())
 }
