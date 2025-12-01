@@ -1,2 +1,9 @@
 [build]
 rustflags = ["-Ctarget-cpu=native"]
+
+[target.x86_64-unknown-linux-gnu]
+rustflags = [
+	"-Ctarget-cpu=native",
+	"-Clink-arg=-fuse-ld=mold",
+	"-Clinker=clang++",
+]
