@@ -29,8 +29,20 @@ fn swag(filename: &str) -> anyhow::Result<()> {
 	let mut answerp1 = 0;
 	let mut answerp2 = 0;
 
-	for line in input0.iter().enumerate() {
-		//
+	let mut dial = 50;
+
+	for (lineno, line) in input0.iter().enumerate() {
+		let rotations = i32::from_str_radix(&line[1..], 10)?;
+
+		if line.starts_with('L') {
+			dial = (dial - rotations) % 100;
+		} else {
+			dial = (dial + rotations) % 100;
+		}
+
+		if dial == 0 {
+			answerp1 += 1;
+		}
 	}
 
 	println!("\n\n====== {filename}:\n{answerp1}\n\n{answerp2}\n\n");
