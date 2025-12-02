@@ -36,9 +36,36 @@ fn swag(filename: &str) -> anyhow::Result<()> {
 			if x.len() % 2 != 0 {
 				continue;
 			}
-			let (a, b) = x.split_at(x.len()/2);
+			let (a, b) = x.split_at(x.len() / 2);
 			if a == b {
 				answerp1 += i;
+			}
+		}
+
+		//println!("{}", r-l);
+	}
+
+	for pid_range in input0.trim().split(',') {
+		let (l, r) = pid_range.split('-').collect_tuple().unwrap();
+		let l: u64 = l.parse().unwrap();
+		let r: u64 = r.parse().unwrap();
+
+		'ider: for i in max(10, l)..=r {
+			let x = i.to_string();
+			let x = x.as_bytes();
+			for chunk_size in 1..x.len() {
+				if x.len() % chunk_size != 0 {
+					continue;
+				}
+				let mut chunks = x.chunks(chunk_size).into_iter();
+				let first = chunks.next().unwrap();
+				if chunks.all(|e| e.eq(first)) {
+					if filename == "test_input" {
+						println!("{i}");
+					}
+					answerp2 += i;
+					continue 'ider;
+				}
 			}
 		}
 
