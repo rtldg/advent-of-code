@@ -22,18 +22,27 @@ fn main() -> anyhow::Result<()> {
 
 fn swag(filename: &str) -> anyhow::Result<()> {
 	let mut input0 = std::fs::read_to_string(filename).context(format!("failed to read {filename} to string 1"))?;
-	let mut input0: Vec<String> = std::fs::read_to_string(filename)
-		.context(format!("failed to read {filename} to string 2"))?
-		.trim()
-		.split('\n')
-		.map(str::to_string)
-		.collect();
 
 	let mut answerp1 = 0;
 	let mut answerp2 = 0;
 
-	for (lineno, line) in input0.iter().enumerate() {
-		//
+	for pid_range in input0.trim().split(',') {
+		let (l, r) = pid_range.split('-').collect_tuple().unwrap();
+		let l: u64 = l.parse().unwrap();
+		let r: u64 = r.parse().unwrap();
+
+		for i in max(10, l)..=r {
+			let x = i.to_string();
+			if x.len() % 2 != 0 {
+				continue;
+			}
+			let (a, b) = x.split_at(x.len()/2);
+			if a == b {
+				answerp1 += i;
+			}
+		}
+
+		//println!("{}", r-l);
 	}
 
 	println!("\n\n====== {filename}:\n{answerp1}\n{answerp2}\n");
