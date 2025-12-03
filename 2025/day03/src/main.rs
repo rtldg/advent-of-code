@@ -33,7 +33,18 @@ fn swag(filename: &str) -> anyhow::Result<()> {
 	let mut answerp2 = 0;
 
 	for (lineno, line) in input0.iter().enumerate() {
-		//
+		let mut biggest = 0;
+		for i in 0..line.len() - 1 {
+			let line = &line[i..];
+			let l = 10 * line.chars().next().unwrap().to_digit(10).unwrap();
+			for c in (&line[1..]).chars() {
+				let r = c.to_digit(10).unwrap();
+				let joltage = l + r;
+				biggest = max(biggest, joltage);
+			}
+		}
+		println!("{line} = {biggest}");
+		answerp1 += biggest;
 	}
 
 	println!("\n\n====== {filename}:\n{answerp1}\n{answerp2}\n");
