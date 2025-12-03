@@ -21,30 +21,60 @@ fn main() -> anyhow::Result<()> {
 }
 
 fn swag(filename: &str) -> anyhow::Result<()> {
-	let mut input0 = std::fs::read_to_string(filename).context(format!("failed to read {filename} to string 1"))?;
-	let mut input0: Vec<String> = std::fs::read_to_string(filename)
+	let mut input0: Vec<Vec<u64>> = std::fs::read_to_string(filename)
 		.context(format!("failed to read {filename} to string 2"))?
 		.trim()
 		.split('\n')
-		.map(str::to_string)
+		.map(|line| line.chars().map(|c| c.to_digit(10).unwrap() as u64).collect())
 		.collect();
 
 	let mut answerp1 = 0;
 	let mut answerp2 = 0;
 
-	for (lineno, line) in input0.iter().enumerate() {
+	for line in input0.iter() {
 		let mut biggest = 0;
 		for i in 0..line.len() - 1 {
 			let line = &line[i..];
-			let l = 10 * line.chars().next().unwrap().to_digit(10).unwrap();
-			for c in (&line[1..]).chars() {
-				let r = c.to_digit(10).unwrap();
-				let joltage = l + r;
+			let l = 10 * line[0];
+			for d in &line[1..] {
+				let joltage = l + d;
 				biggest = max(biggest, joltage);
 			}
 		}
-		println!("{line} = {biggest}");
+		//println!("{line} = {biggest}");
 		answerp1 += biggest;
+	}
+
+	const P2COUNT: usize = 12;
+
+	for line in input0.iter() {
+		let mut biggest = 0;
+		let mut added = 0;
+		let mut last = 0;
+		let mut i = 0;
+		while i < line.len() {
+			let end = line.len() - (P2COUNT - added) + 1;
+			let hay = &line[i..end];
+
+			let mut pos = 0;
+			let mut l = hay[0];
+			for (i, d) in hay.iter().enumerate() {
+				if *d > l {
+					l = *d;
+					pos = i;
+				}
+			}
+			i += pos;
+			biggest *= 10;
+			biggest += l;
+			added += 1;
+			if added == 12 {
+				break;
+			}
+			i += 1;
+		}
+		println!("{} = {biggest}", line.iter().map(|d| d.to_string()).join(""));
+		answerp2 += biggest;
 	}
 
 	println!("\n\n====== {filename}:\n{answerp1}\n{answerp2}\n");
