@@ -21,19 +21,43 @@ fn main() -> anyhow::Result<()> {
 }
 
 fn swag(filename: &str) -> anyhow::Result<()> {
-	let mut input0 = std::fs::read_to_string(filename).context(format!("failed to read {filename} to string 1"))?;
-	let mut input0: Vec<String> = std::fs::read_to_string(filename)
+	let mut board: Vec<Vec<u8>> = std::fs::read_to_string(filename)
 		.context(format!("failed to read {filename} to string 2"))?
 		.trim()
 		.split('\n')
-		.map(str::to_string)
+		.map(|line| line.as_bytes().to_owned())
 		.collect();
+
+	let mut battleships = vec![vec![false; board[0].len()]; board.len()];
+	//let mut battleships = board.clone();
 
 	let mut answerp1 = 0;
 	let mut answerp2 = 0;
 
-	for (lineno, line) in input0.iter().enumerate() {
-		//
+	let adjacent_coords = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)];
+
+	for y in 0..board.len() {
+		for x in 0..board[0].len() {
+			if board[y][x] != b'@' {
+				continue;
+			}
+
+			let mut adjacent = 0;
+			for (yoff, xoff) in adjacent_coords {
+				if let Some(row) = board.get((y as isize + yoff) as usize)
+					&& let Some(point) = row.get((x as isize + xoff) as usize)
+				{
+					if *point == b'@' {
+						adjacent += 1;
+					}
+				}
+			}
+			if adjacent < 4 {
+				//println!("y:{y} x:{x}");
+				//battleships[y][x] = true;
+				answerp1 += 1;
+			}
+		}
 	}
 
 	println!("\n\n====== {filename}:\n{answerp1}\n{answerp2}\n");
