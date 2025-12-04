@@ -60,6 +60,40 @@ fn swag(filename: &str) -> anyhow::Result<()> {
 		}
 	}
 
+	loop {
+		let mut deforested = false;
+
+		for y in 0..board.len() {
+			for x in 0..board[0].len() {
+				if board[y][x] != b'@' {
+					continue;
+				}
+
+				let mut adjacent = 0;
+				for (yoff, xoff) in adjacent_coords {
+					if let Some(row) = board.get((y as isize + yoff) as usize)
+						&& let Some(point) = row.get((x as isize + xoff) as usize)
+					{
+						if *point == b'@' {
+							adjacent += 1;
+						}
+					}
+				}
+				if adjacent < 4 {
+					board[y][x] = b'.';
+					//println!("y:{y} x:{x}");
+					//battleships[y][x] = true;
+					answerp2 += 1;
+					deforested = true;
+				}
+			}
+		}
+
+		if !deforested {
+			break;
+		}
+	}
+
 	println!("\n\n====== {filename}:\n{answerp1}\n{answerp2}\n");
 
 	Ok(())
