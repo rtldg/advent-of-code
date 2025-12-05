@@ -23,7 +23,7 @@ fn main() -> anyhow::Result<()> {
 fn swag(filename: &str) -> anyhow::Result<()> {
 	let mut input0 = std::fs::read_to_string(filename).context(format!("failed to read {filename} to string 1"))?;
 	let (fresh, available) = input0.split("\n\n").collect_tuple().unwrap();
-	let fresh: Vec<_> = fresh
+	let mut fresh: Vec<_> = fresh
 		.trim()
 		.split('\n')
 		.map(|line| {
@@ -49,6 +49,35 @@ fn swag(filename: &str) -> anyhow::Result<()> {
 			}
 		}
 	}
+
+	fresh.sort_by(|a, b| {
+		if a.start() == b.start() {
+			a.end().cmp(b.end())
+		} else {
+			a.start().cmp(b.start())
+		}
+	});
+
+	'merger: loop {
+		for i in 0..fresh.len() - 1 {
+			let l = fresh[i].clone();
+			let r = fresh[i + 1].clone();
+
+			if l.contains(r.start()) {
+				fresh[i] = *l.start()..=max(*l.end(), *r.end());
+				fresh.remove(i + 1);
+				continue 'merger;
+			}
+		}
+
+		break;
+	}
+
+	if filename == "test_input" {
+		println!("{fresh:?}");
+	}
+
+	answerp2 = fresh.iter().map(|x| x.end() - x.start() + 1).sum();
 
 	println!("\n\n====== {filename}:\n{answerp1}\n{answerp2}\n");
 
