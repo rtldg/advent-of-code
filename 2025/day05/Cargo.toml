@@ -1,0 +1,10 @@
+[package]
+name = "aoc2025day05"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+anyhow = "1"
+itertools = "0.14"
+rayon = "1.11"
+regex = "1.12"
