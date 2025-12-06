@@ -57,6 +57,41 @@ fn swag(filename: &str) -> anyhow::Result<()> {
 		}
 	}
 
+	let rowlen = input0.iter().map(|s| s.len()).max().unwrap();
+
+	let mut num = 0;
+	let mut numbers = vec![];
+	for i in (0..rowlen).rev() {
+		for line in input0.iter() {
+			//dbg!(line);
+			let c = if let Some(c) = line.as_bytes().get(i) {
+				*c as char
+			} else {
+				' '
+			};
+			if c.is_ascii_digit() {
+				num = (num * 10) + c.to_digit(10).unwrap() as u64;
+			} else {
+				if num != 0 {
+					//dbg!(num);
+					numbers.push(num);
+					num = 0;
+				}
+				if c.is_whitespace() {
+					continue;
+				}
+				//dbg!(&numbers);
+				if c == '+' {
+					answerp2 += numbers.iter().sum::<u64>();
+				} else if c == '*' {
+					answerp2 += numbers.iter().product::<u64>();
+				}
+				numbers.clear();
+				break;
+			}
+		}
+	}
+
 	//dbg!(numbers);
 	//dbg!(operators);
 
