@@ -21,8 +21,14 @@ fn main() -> anyhow::Result<()> {
 	Ok(())
 }
 
-fn start_splitter(rows: &[Vec<u8>], splitters: &mut HashSet<(usize, usize)>, starty: usize, startx: usize) {
-	for y in starty+1..rows.len() {
+fn start_splitter(rows: &mut [Vec<u8>], splitters: &mut HashSet<(usize, usize)>, starty: usize, startx: usize) {
+	for y in starty..rows.len() {
+		if rows[y][startx] == b'|' {
+			return;
+		}
+		if rows[y][startx] == b'.' {
+			rows[y][startx] = b'|';
+		}
 		if rows[y][startx] == b'^' {
 			splitters.insert((y, startx));
 			if rows[y].len() > 1 {
@@ -31,6 +37,7 @@ fn start_splitter(rows: &[Vec<u8>], splitters: &mut HashSet<(usize, usize)>, sta
 			if startx < rows[y].len() {
 				start_splitter(rows, splitters, y, startx+1);
 			}
+			break;
 		}
 	}
 }
@@ -51,17 +58,14 @@ fn swag(filename: &str) -> anyhow::Result<()> {
 
 	let mut splitters = HashSet::new();
 
-	start_splitter(&input0, &mut splitters, 0, S);
+	start_splitter(&mut input0, &mut splitters, 0, S);
 
-	for (y, x) in &splitters {
-		input0[*y][*x] = b'!';
-	}
 	for line in input0 {
 		println!("{}", str::from_utf8(&line).unwrap());
 	}
 
 	//println!("{splitters:?}");
-	//println!("{}", splitters.len());
+	println!("{}", splitters.len());
 
 	println!("\n\n====== {filename}:\n{answerp1}\n{answerp2}\n");
 
