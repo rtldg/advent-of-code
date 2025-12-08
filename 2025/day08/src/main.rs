@@ -34,10 +34,8 @@ fn swag(filename: &str) -> anyhow::Result<()> {
 		.map(|line| line.split(',').map(|s| s.parse().unwrap()).collect_array().unwrap())
 		.collect();
 
-	let mut answerp2 = 0;
-
-	//let mut circuits: Vec<HashSet<Point>> = vec![];
-	let mut circuits: Vec<Vec<Point>> = vec![];
+	let mut answerp1 = 0;
+	let mut answerp2 = 0.0;
 
 	let dists = jboxes
 		.iter()
@@ -48,8 +46,10 @@ fn swag(filename: &str) -> anyhow::Result<()> {
 	let mut dists = dists.into_iter().flatten().collect_vec();
 	dists.sort_by(|a, b| a.2.partial_cmp(&b.2).unwrap());
 
+	let mut circuits: Vec<Vec<Point>> = vec![];
+
 	let pairs_to_take = if filename == "test_input" { 10 } else { 1000 };
-	for &(a, b, dist) in dists.iter().take(pairs_to_take) {
+	for (i, &(a, b, dist)) in dists.iter().enumerate() {
 		//println!("{a:?} <-> {b:?} = {dist}");
 		let mut cir = vec![a, b];
 		for v in circuits.extract_if(.., |v| v.contains(&a) || v.contains(&b)) {
@@ -57,16 +57,24 @@ fn swag(filename: &str) -> anyhow::Result<()> {
 		}
 		cir.sort_by(|a, b| a.partial_cmp(&b).unwrap());
 		cir.dedup();
+
+		if cir.len() == jboxes.len() {
+			answerp2 = a[0] as f64 * b[0] as f64; // fuck you f32
+			println!("in one large circuit with  i={i} {a:?} {b:?}");
+			break;
+		}
 		//println!("  cir.len() = {}", cir.len());
 		circuits.push(cir);
-	}
 
-	let mut sizes: Vec<usize> = circuits.iter().map(|v| v.len()).collect();
-	sizes.sort();
-	let answerp1: usize = sizes.iter().rev().take(3).product();
+		if i == pairs_to_take {
+			let mut sizes: Vec<usize> = circuits.iter().map(|v| v.len()).collect();
+			sizes.sort();
+			answerp1 = sizes.iter().rev().take(3).product();
+			println!("sizes = {sizes:?}");
+			println!("unique = {}", circuits.iter().map(|v| v.len()).sum::<usize>());
+		}
+	}
 	//println!("{circuits:#?}");
-	println!("sizes = {sizes:?}");
-	println!("unique = {}", circuits.iter().map(|v| v.len()).sum::<usize>());
 
 	println!("\n\n====== {filename}:\n{answerp1}\n{answerp2}\n");
 
