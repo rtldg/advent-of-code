@@ -22,6 +22,18 @@ fn main() -> anyhow::Result<()> {
 	Ok(())
 }
 
+fn get_area(a: &[usize; 2], b: &[usize; 2]) -> usize {
+	let (minx, maxx) = if a[0] < b[0] { (a[0], b[0]) } else { (b[0], a[0]) };
+	let (miny, maxy) = if a[1] < b[1] { (a[1], b[1]) } else { (b[1], a[1]) };
+	(maxx - minx + 1) * (maxy - miny + 1)
+}
+
+fn boxes_intersect(a: &[usize; 2], b: &[usize; 2]) -> bool {
+	let (minx, maxx) = if a[0] < b[0] { (a[0], b[0]) } else { (b[0], a[0]) };
+	let (miny, maxy) = if a[1] < b[1] { (a[1], b[1]) } else { (b[1], a[1]) };
+	maxx >= minx && maxy >= miny &&
+}
+
 fn swag(filename: &str) -> anyhow::Result<()> {
 	let mut redtiles: Vec<[usize; 2]> = std::fs::read_to_string(filename)
 		.context(format!("failed to read {filename} to string 2"))?
@@ -32,33 +44,64 @@ fn swag(filename: &str) -> anyhow::Result<()> {
 	redtiles.push(redtiles[0]); // close loop
 
 	let mut answerp1;
-	let mut answerp2 = 0;
+	let mut answerp2;
 
 	let areas = redtiles
 		.iter()
 		.permutations(2)
 		.par_bridge()
-		.map(|v| {
-			let (a, b) = if v[0][0] < v[1][0] {
-				(v[0][0], v[1][0])
-			} else {
-				(v[1][0], v[1][0])
-			};
-			let (c, d) = if v[0][1] < v[1][1] {
-				(v[0][1], v[1][1])
-			} else {
-				(v[1][1], v[1][1])
-			};
-			(b - a + 1) * (d - c + 1)
-		})
+		.map(|v| (*v[0], *v[1], get_area(v[0], v[1])))
 		.collect_vec_list();
-	let areas = areas.into_iter().flatten().collect_vec();
+	let mut areas = areas.into_iter().flatten().collect_vec();
 
-	answerp1 = *areas.iter().max().unwrap();
+	answerp1 = areas.iter().map(|a| a.2).max().unwrap();
+
+	// reverse sort
+	areas.sort_by(|a, b| {
+		b.2.cmp(&a.2)
+	});
+
+	let p2areas = areas.par_iter().map(|&(a, b, area)| {
+		let mut blocks = vec![(a, b)];
+
+		while let Some(block) = blocks.pop() {
+			let mut covered = false;
+			for tiles in redtiles.iter().permutations(2) {
+				let newblock = (*tiles[0], *tiles[1]);
+				if boxes_intersect(&a, &b)
+			}
+			if covered && blocks.is_empty() {
+				return get_area(&a, &b);
+			}
+		}
+		0
+	}).collect_vec_list();
+	let p2areas = p2areas.into_iter().flatten().collect_vec();
+
+	answerp2 = *p2areas.iter().max().unwrap();
+
+	/*
+	- Fill array of lines
+	- Merge lines
+	- Check if box borders are on lines -- NOPE, won't work.  Might actually have to flood fill :pensive:
+	*/
+
+	/*
+	- Fill array of lines
+	- Merge lines
+
+
+	- Calculate boxes based on 3 points.
+	  But how do we detect if it's inline?
+	*/
+
+	/*
+	For each box:
+	- check if lines span
+	*/
 
 	/* Pseudo-code:
 
-	areas.sort_by(|a,b | b.2.cmp(a.2));
 	for (a, b, area) in areas.iter() {
 		let mut blocks = vec![(a, b)];
 
