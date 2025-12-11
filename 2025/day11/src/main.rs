@@ -22,7 +22,6 @@ fn main() -> anyhow::Result<()> {
 }
 
 fn swag(filename: &str) -> anyhow::Result<()> {
-	let mut input0 = std::fs::read_to_string(filename).context(format!("failed to read {filename} to string 1"))?;
 	let mut input0: Vec<String> = std::fs::read_to_string(filename)
 		.context(format!("failed to read {filename} to string 2"))?
 		.trim()
@@ -33,8 +32,19 @@ fn swag(filename: &str) -> anyhow::Result<()> {
 	let mut answerp1 = 0;
 	let mut answerp2 = 0;
 
+	let mut connections = HashMap::new();
+
 	for (lineno, line) in input0.iter().enumerate() {
-		//
+		let (from, to) = line.split(':').collect_tuple().unwrap();
+		let to = to
+			.trim()
+			.split_ascii_whitespace()
+			.filter(|s| *s != "you")
+			.map(str::to_string)
+			.collect_vec();
+		if !to.is_empty() {
+			connections.insert(from.to_string(), to);
+		}
 	}
 
 	println!("\n\n====== {filename}:\n{answerp1}\n{answerp2}\n");
